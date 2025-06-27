@@ -1,30 +1,28 @@
 import express from 'express'
+import cors from 'cors'
+
 
 const app = express();
 
-// pequeña bd jaja - con lo que tenía cerca
-const products = [
-    {id:1, name: "termo", price: 10},
-    {id:2, name: "mate", price: 10},
-    {id:3, name: "botella", price: 5},
-];
+// middleware para poder comprender el cuerpo de la petición
+// lo deja disponible en req.body
+app.use(express.json());
+
+// para que no de error de cors al consumirse la api desde una vista
+app.use(cors());
 
 app.get('/', (req,res) =>{
     res.send('<h1>Hola API Rest</h1>');
 });
 
-app.get('/products', (req,res) =>{
-    res.json(products);
-});
 
-app.get('/products/:id', (req,res) =>{
-    const product = products.find((item) => item.id == req.params.id )
+// rutas de productos
+import productsRouter from './src/routes/products.routes.js'
+app.use("/api", productsRouter);
 
-    if (product === undefined) {
-        res.send('<h1>no existe ameo</h1>')
-    }
-    res.json(product);
-});
+app.use((req,res,next) => {
+    res.status(404).json({error: "no se encontró esta URL ameo"});
+})
 
 const PORT = 3000
 
