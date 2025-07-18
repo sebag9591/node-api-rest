@@ -1,70 +1,59 @@
-import * as service from '../services/products.services.js'
+//import * as service from '../services/products.services.js'
+import * as model from '../models/products.model.js'
 
-// la hago corta con el falso servicio
-const products = service.getProductsArray();
-
-export const getAllProducts = (req,res) =>{
+// obtener todos los productos
+export const getAllProducts = async (req,res) =>{
+    const products = await model.getAllProducts();
     res.json(products);
 };
 
-export const searchProducts = (req, res) => {
-    const {nombre} = req.query;
-
-    const filteredProducts = products.filter((p) => p.name.toLowerCase().includes(nombre.toLowerCase()));
-
-    res.json(filteredProducts);
-};
-
-export const getProductById = (req,res) =>{
+// obtener producto por id
+export const getProductById = async (req,res) =>{
     const { id } = req.params;
-    const product = products.find((item) => item.id == id )
+    const product = await model.getProductById(id);
 
-    if (product === undefined) {
-        //res.send('<h1>no existe ameo</h1>')
-        res.status(404).json({ error: "No existe ameo"});
+    if (!product) {
+        res.status(404).json({ error: "No existe producto con ese ID"});
     }
     res.json(product);
 };
 
-export const createProduct = (req,res) => {
-    const {name,price} = req.body;
+// crear producto
+export const createProduct = async (req,res) => {
+    const {name,price, categories} = req.body;
 
-    const newProduct = {
-        id: products.length + 1,
-        name,
-        price,
-    };
+    if (!name || !price || !categories)
+        res.status(404).json({error: "El producto debe tener nombre, precio y categoría" });
 
-    products.push(newProduct);
-
+    let newProduct = await model.createProduct({name,price, categories});
+    
     res.status(201).json(newProduct);
 };
 
-export const editProduct = (req,res) =>{
-    const productId = parseInt( req.params.id , 10);
-    const productIndex = products.findIndex((p) => p.id === productId);
 
-    if (productIndex === -1) {
-        res.status(404).json({ error: "No existe ameo"});
-    }
+// borrar producto
+export const deleteProduct = async (req,res) =>{
+    const { id } = req.params;
     
-    const {name,price} = req.body;
- 
-    products[productIndex] = {id:productId, name, price};
+    const productDeleted = await model.deleteProduct( id );
 
-    res.status(201).json(products[productIndex]);
+    if (!productDeleted) {
+        return res.status(404).json({error:"El producto no ha sido encontrado"})
+    }
+
+    res.status(204).send();
 };
 
-export const deleteProduct = (req,res) =>{
-    const productId = parseInt( req.params.id , 10);
-    const productIndex = products.findIndex((p) => p.id === productId);
+// editar producto
+export const editProduct = async (req,res) => {
+    const { id } = req.params;
+    const productData = req.body;
+    const product = await model.updateProduct(id, productData);
 
-    if (productIndex === -1) {
-        res.status(404).json({ error: "No existe ameo"});
+    if (!product) {
+        res.status(404).json({ error: "No existe producto con ese ID"});
     }
-    
-    products.splice(productIndex, 1);
-
-    res.status(202).json({message:"producto borrado"});
+    res.json(product);
 };
 
+// TODO: searchProduct()
