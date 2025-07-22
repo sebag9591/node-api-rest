@@ -5,7 +5,7 @@ const router = Router();
 
 import { 
     getAllProducts, 
-    searchProducts,
+    getProductsByName,
     getProductById, 
     createProduct, 
     editProduct, 
@@ -15,8 +15,8 @@ import {
 import { auth } from "../middlewares/auth.middleware.js";
 
 router.get('/products', getAllProducts);
+router.get('/products/search', getProductsByName);
 router.get('/products/:id', getProductById);
-//router.get('/products/search', searchProducts);
 
 router.post('/products', auth, createProduct);
 

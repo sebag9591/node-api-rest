@@ -88,3 +88,16 @@ export const updateProduct = async (id, productData) => {
         console.error(error);
     }
 }
+
+// buscar producto por nombre
+export const getProductsByName = async (name) => {
+    try {
+        const snapshot = await getDocs(productsCollection);
+        const lowerName = name.toLowerCase();
+        return snapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() }))
+            .filter(product => product.name?.toLowerCase().includes(lowerName));
+    } catch (error) {
+        console.error(error);
+    }
+};

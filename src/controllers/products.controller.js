@@ -56,4 +56,19 @@ export const editProduct = async (req,res) => {
     res.json(product);
 };
 
-// TODO: searchProduct()
+// buscar producto por nombre
+export const getProductsByName = async (req, res) => {
+    const { name } = req.query;
+
+    if (!name) {
+        return res.status(400).json({ message: "Falta el parámetro 'name'" });
+    }
+
+    const products = await model.getProductsByName(name);
+
+    if (!products || products.length === 0 ) {
+        res.status(404).json({ error: "No existen productos con ese nombre"});
+    }
+
+    res.json(products);
+};
